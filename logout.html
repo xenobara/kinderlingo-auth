@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Logging Out — KinderLingo</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script type="module">
+import { signOut } from '/auth-system/static/auth.js';
+window.addEventListener('DOMContentLoaded', async () => {
+  await signOut();
+  document.getElementById('status').textContent = 'You have been logged out.';
+  setTimeout(() => window.location.href = '/', 1500);
+});
+</script>
+<style>
+body{font-family:'Nunito',Arial,sans-serif;background:#f4f6fb;display:flex;align-items:center;justify-content:center;min-height:100vh;text-align:center}
+.card{background:white;padding:48px;border-radius:20px;box-shadow:0 4px 24px rgba(0,0,0,.08)}
+h1{font-family:'Fredoka One',cursive;color:#1a1a2e;margin-bottom:12px}
+p{color:#888}
+.spinner{width:36px;height:36px;border:3px solid #e8e8e8;border-top-color:#4A90D9;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 16px}
+@keyframes spin{to{transform:rotate(360deg)}}
+a{color:#4A90D9;text-decoration:none;font-weight:700}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="spinner"></div>
+  <h1>Logging Out...</h1>
+  <p id="status">Please wait a moment.</p>
+  <p style="margin-top:16px"><a href="/">← Back to KinderLingo</a></p>
+</div>
+</body>
+</html>

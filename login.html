@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>KinderLingo — Login</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script type="module" src="/auth-system/static/auth.js"></script>
+<style>
+:root{--blue:#4A90D9;--coral:#FF6B35;--teal:#4ECDC4;--purple:#a55eea;--dark:#1a1a2e;--bg:#f4f6fb;--gray:#2D3436;--green:#2ecc71}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Nunito',Arial,sans-serif;background:var(--bg);color:var(--gray)}
+
+nav{background:white;box-shadow:0 2px 8px rgba(0,0,0,.08);position:sticky;top:0;z-index:100;padding:0 24px;height:60px;display:flex;align-items:center;justify-content:space-between}
+nav a.logo{font-family:'Fredoka One',cursive;font-size:1.3rem;text-decoration:none}
+nav .k{color:var(--blue)}
+nav .l{color:var(--coral)}
+nav ul{display:flex;gap:6px;list-style:none;align-items:center}
+nav ul a{padding:6px 14px;border-radius:8px;font-size:.88rem;font-weight:700;color:#555;font-family:'Nunito',Arial,sans-serif;transition:all .2s;text-decoration:none}
+nav ul a:hover{background:#f5f5f5}
+.nav-login-btn{background:var(--blue)!important;color:white!important}
+.nav-login-btn:hover{background:#3a7bc8!important}
+.nav-subscribe-btn{background:var(--coral)!important;color:white!important}
+.nav-subscribe-btn:hover{background:#e05525!important}
+.nav-premium-btn{color:var(--teal)!important;font-weight:800!important}
+.nav-user{font-size:.85rem;color:#888;padding:0 8px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nav-logout-btn{color:#999!important}
+.nav-logout-btn:hover{color:#e05525!important}
+
+.page{padding:64px 24px;max-width:900px;margin:0 auto}
+
+.hero-login{text-align:center;padding:72px 24px 48px;background:linear-gradient(135deg,#6C5CE7,#a55eea);color:white;border-radius:0 0 32px 32px;margin-bottom:48px}
+.hero-login h1{font-family:'Fredoka One',cursive;font-size:2.4rem;margin-bottom:12px;color:white}
+.hero-login p{font-size:1.1rem;opacity:.88;max-width:480px;margin:0 auto 32px}
+
+.auth-grid{display:grid;grid-template-columns:1fr 1fr;gap:32px;max-width:760px;margin:0 auto}
+.auth-card{background:white;border-radius:20px;padding:36px 32px;box-shadow:0 4px 24px rgba(0,0,0,.08);text-align:center}
+.auth-card h2{font-family:'Fredoka One',cursive;font-size:1.6rem;margin-bottom:8px;color:var(--dark)}
+.auth-card p{font-size:.9rem;color:#888;margin-bottom:28px}
+.form-group{margin-bottom:18px;text-align:left}
+.form-group label{display:block;font-weight:700;font-size:.85rem;margin-bottom:6px;color:var(--dark)}
+.form-group input{width:100%;padding:12px 14px;border:2px solid #e8e8e8;border-radius:10px;font-size:.95rem;font-family:'Nunito',Arial,sans-serif;transition:border-color .2s}
+.form-group input:focus{outline:none;border-color:var(--blue)}
+.btn-full{width:100%;padding:14px;border-radius:10px;font-weight:800;font-size:1rem;font-family:'Nunito',Arial,sans-serif;border:none;cursor:pointer;transition:all .2s}
+.btn-primary{background:var(--blue);color:white}
+.btn-primary:hover{background:#3a7bc8;transform:translateY(-2px)}
+.btn-coral{background:var(--coral);color:white}
+.btn-coral:hover{background:#e05525;transform:translateY(-2px)}
+.divider{margin:20px 0;display:flex;align-items:center;gap:12px;color:#bbb;font-size:.82rem}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:#e8e8e8}
+.google-btn{width:100%;padding:12px;border-radius:10px;border:2px solid #e8e8e8;background:white;font-weight:700;font-size:.95rem;font-family:'Nunito',Arial,sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .2s}
+.google-btn:hover{border-color:var(--blue);background:#f0f6ff}
+.google-btn svg{width:20px;height:20px}
+.auth-footer{margin-top:20px;font-size:.85rem;color:#888}
+.auth-footer a{color:var(--blue);text-decoration:none;font-weight:700}
+
+.msg-box{padding:12px 16px;border-radius:8px;margin-bottom:16px;font-weight:700;font-size:.92rem;text-align:center}
+.msg-success{background:#e8f8ee;color:#1a7a3a;border:1px solid #a8e6c0}
+.msg-error{background:#ffe8e8;color:#c0392b;border:1px solid #f5c6c6}
+.msg-info{background:#e8f0ff;color:#2d5db8;border:1px solid #b8d4ff}
+
+#loading-overlay{position:fixed;inset:0;background:rgba(255,255,255,.85);display:flex;align-items:center;justify-content:center;z-index:9999}
+.spinner{width:40px;height:40px;border:4px solid #e8e8e8;border-top-color:var(--blue);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+@media(max-width:600px){.auth-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="logo"><span class="k">Kinder</span><span class="l">Lingo</span></a>
+  <ul id="nav-auth">
+    <li><a href="/games/">Games</a></li>
+    <li><a href="/videos/">Videos</a></li>
+    <li><a href="/lesson-plans/">Lesson Plans</a></li>
+    <li><a href="/auth-system/login.html" class="nav-login-btn">Login</a></li>
+    <li><a href="/auth-system/signup.html" class="nav-subscribe-btn">Subscribe</a></li>
+  </ul>
+</nav>
+
+<div class="hero-login">
+  <h1>Welcome to KinderLingo</h1>
+  <p>Log in to access your premium content, games, and learning tools.</p>
+</div>
+
+<div class="page">
+  <div id="loading-overlay" style="display:none">
+    <div class="spinner"></div>
+  </div>
+
+  <div id="message-area"></div>
+
+  <div class="auth-grid">
+    <!-- LOGIN CARD -->
+    <div class="auth-card">
+      <h2>🔑 Sign In</h2>
+      <p>Access your KinderLingo account</p>
+      <div id="login-form">
+        <div class="form-group">
+          <label>Email Address</label>
+          <input type="email" id="login-email" placeholder="you@example.com" autocomplete="email" required>
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password" required>
+        </div>
+        <button class="btn-full btn-primary" id="login-btn" onclick="handleLogin()">Sign In →</button>
+        <div class="divider">or</div>
+        <button class="google-btn" onclick="handleGoogleLogin()">
+          <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+          Continue with Google
+        </button>
+        <div class="auth-footer">
+          Don't have an account? <a href="/auth-system/signup.html">Sign up free →</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- SIGNUP CARD -->
+    <div class="auth-card">
+      <h2>🚀 Get Started</h2>
+      <p>Start your free trial today</p>
+      <div>
+        <div class="form-group">
+          <label>Email Address</label>
+          <input type="email" id="signup-email" placeholder="you@example.com" autocomplete="email">
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="signup-password" placeholder="Choose a password (min 6 chars)" autocomplete="new-password">
+        </div>
+        <button class="btn-full btn-coral" onclick="handleSignup()">Create Free Account →</button>
+        <div class="divider">or</div>
+        <button class="google-btn" onclick="handleGoogleLogin()">
+          <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+          Sign up with Google
+        </button>
+        <div class="auth-footer">
+          Already have an account? <a href="/auth-system/login.html">Sign in →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { signIn, signUp, signInWithGoogle, getUser, showMessage } from '/auth-system/static/auth.js';
+
+function setLoading(on) {
+  document.getElementById('loading-overlay').style.display = on ? 'flex' : 'none';
+}
+
+window.handleLogin = async function() {
+  const email = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  if (!email || !password) { showMessage('Please enter email and password.', 'error'); return; }
+  setLoading(true);
+  try {
+    const { data, error } = await signIn(email, password);
+    if (error) throw error;
+    showMessage('Welcome back! Redirecting...', 'success');
+    setTimeout(() => window.location.href = '/', 1200);
+  } catch (err) {
+    showMessage(err.message || 'Login failed. Please try again.', 'error');
+    setLoading(false);
+  }
+};
+
+window.handleSignup = async function() {
+  const email = document.getElementById('signup-email').value.trim();
+  const password = document.getElementById('signup-password').value;
+  if (!email || !password) { showMessage('Please enter email and password.', 'error'); return; }
+  if (password.length < 6) { showMessage('Password must be at least 6 characters.', 'error'); return; }
+  setLoading(true);
+  try {
+    const { data, error } = await signUp(email, password);
+    if (error) throw error;
+    showMessage('Account created! Check your email to confirm, then log in.', 'success');
+    document.getElementById('signup-email').value = '';
+    document.getElementById('signup-password').value = '';
+    setLoading(false);
+  } catch (err) {
+    showMessage(err.message || 'Signup failed. Please try again.', 'error');
+    setLoading(false);
+  }
+};
+
+window.handleGoogleLogin = async function() {
+  setLoading(true);
+  try {
+    const { data, error } = await signInWithGoogle();
+    if (error) throw error;
+    // Redirect happens automatically via OAuth
+  } catch (err) {
+    showMessage(err.message || 'Google login failed.', 'error');
+    setLoading(false);
+  }
+};
+
+// Check if already logged in
+const user = await getUser();
+if (user) {
+  window.location.href = '/';
+}
+</script>
+</body>
+</html>

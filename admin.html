@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Admin Dashboard — KinderLingo</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script type="module" src="/auth-system/static/auth.js"></script>
+<style>
+:root{--blue:#4A90D9;--coral:#FF6B35;--teal:#4ECDC4;--green:#2ecc71;--red:#e74c3c;--dark:#1a1a2e;--bg:#f4f6fb}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Nunito',Arial,sans-serif;background:var(--bg);color:var(--dark)}
+
+nav{background:white;box-shadow:0 2px 8px rgba(0,0,0,.08);position:sticky;top:0;z-index:100;padding:0 24px;height:60px;display:flex;align-items:center;justify-content:space-between}
+nav a.logo{font-family:'Fredoka One',cursive;font-size:1.3rem;text-decoration:none}
+nav .k{color:var(--blue)}
+nav .l{color:var(--coral)}
+nav ul{display:flex;gap:6px;list-style:none;align-items:center}
+nav ul li a{padding:6px 14px;border-radius:8px;font-size:.88rem;font-weight:700;color:#555;font-family:'Nunito',Arial,sans-serif;transition:all .2s;text-decoration:none}
+.nav-logout-btn:hover{color:var(--red)!important}
+
+.page{padding:40px 24px;max-width:1100px;margin:0 auto}
+
+.not-admin{text-align:center;padding:80px 24px}
+.not-admin h1{font-family:'Fredoka One',cursive;font-size:2rem;color:var(--dark);margin-bottom:12px}
+.not-admin p{color:#888;margin-bottom:24px}
+
+.auth-gate{text-align:center;padding:80px 24px}
+.auth-gate h2{font-family:'Fredoka One',cursive;font-size:1.8rem;margin-bottom:12px}
+.auth-gate p{color:#888;margin-bottom:24px}
+.btn{background:var(--blue);color:white;padding:12px 28px;border-radius:10px;font-weight:700;text-decoration:none;display:inline-block;font-family:'Nunito',Arial,sans-serif}
+
+/* ── STATS ── */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:36px}
+.stat-card{background:white;border-radius:16px;padding:24px 20px;box-shadow:0 2px 12px rgba(0,0,0,.06);text-align:center}
+.stat-card .num{font-family:'Fredoka One',cursive;font-size:2.4rem;color:var(--blue)}
+.stat-card .num.green{color:var(--green)}
+.stat-card .num.coral{color:var(--coral)}
+.stat-card .label{font-size:.85rem;color:#888;font-weight:700;margin-top:4px}
+
+/* ── CHART ── */
+.chart-card{background:white;border-radius:16px;padding:24px;box-shadow:0 2px 12px rgba(0,0,0,.06);margin-bottom:28px}
+.chart-card h3{font-family:'Fredoka One',cursive;font-size:1.1rem;margin-bottom:16px}
+.chart-bars{display:flex;align-items:flex-end;gap:8px;height:100px}
+.bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+.bar{width:100%;background:var(--teal);border-radius:4px 4px 0 0;min-height:4px;transition:height .3s}
+.bar-label{font-size:.65rem;color:#888;font-weight:700}
+
+/* ── TABLE ── */
+.table-card{background:white;border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.06)}
+.table-card .header{padding:20px 24px;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;justify-content:space-between}
+.table-card h3{font-family:'Fredoka One',cursive;font-size:1.1rem}
+.table-card .actions{display:flex;gap:8px}
+
+table{width:100%;border-collapse:collapse}
+thead tr{background:#f9f9f9}
+th{padding:12px 16px;text-align:left;font-size:.78rem;font-weight:800;color:#888;text-transform:uppercase;letter-spacing:.05em}
+td{padding:14px 16px;font-size:.9rem;border-bottom:1px solid #f5f5f5;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafafa}
+
+.user-email{font-weight:700;color:var(--dark)}
+.user-meta{font-size:.78rem;color:#aaa;margin-top:2px}
+
+.badge{padding:3px 10px;border-radius:50px;font-size:.75rem;font-weight:800}
+.badge-active{background:#e8f8ee;color:#1a7a3a}
+.badge-inactive{background:#fdf2f2;color:#c0392b}
+.badge-subscriber{background:#e8f0ff;color:#2d5db8}
+.badge-admin{background:#f3e8ff;color:#7c3aed}
+.badge-suspended{background:#fff3cd;color:#856404}
+
+.btn-sm{padding:5px 12px;border-radius:6px;font-size:.8rem;font-weight:700;border:none;cursor:pointer;font-family:'Nunito',Arial,sans-serif;transition:all .2s}
+.btn-suspend{background:#fff3cd;color:#856404;border:1.5px solid #ffeeba}
+.btn-suspend:hover{background:#ffeeba}
+.btn-delete{background:#ffe8e8;color:#c0392b;border:1.5px solid #f5c6c6}
+.btn-delete:hover{background:#f5c6c6}
+.btn-activate{background:#e8f8ee;color:#1a7a3a;border:1.5px solid #a8e6c0}
+.btn-activate:hover{background:#a8e6c0}
+
+.msg-box{padding:10px 16px;border-radius:8px;margin:0 24px 16px;font-weight:700;font-size:.88rem}
+.msg-success{background:#e8f8ee;color:#1a7a3a;border:1px solid #a8e6c0}
+.msg-error{background:#ffe8e8;color:#c0392b;border:1px solid #f5c6c6}
+
+#loading-overlay{position:fixed;inset:0;background:rgba(255,255,255,.85);display:flex;align-items:center;justify-content:center;z-index:9999}
+.spinner{width:36px;height:36px;border:3px solid #e8e8e8;border-top-color:var(--blue);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+@media(max-width:768px){.stats-row{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:500px){.stats-row{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="logo"><span class="k">Kinder</span><span class="l">Lingo</span></a>
+  <ul>
+    <li><a href="/">🏠 Home</a></li>
+    <li><a href="/auth-system/admin.html" style="color:var(--teal)">⚙️ Admin</a></li>
+    <li><a href="/auth-system/logout.html" class="nav-logout-btn">Logout</a></li>
+  </ul>
+</nav>
+
+<div id="loading-overlay" style="display:none"><div class="spinner"></div></div>
+
+<div class="page">
+  <!-- AUTH GATE -->
+  <div id="auth-gate" class="auth-gate" style="display:none">
+    <h2>🔐 Admin Access</h2>
+    <p>You must be logged in to view this page.</p>
+    <a href="/auth-system/login.html" class="btn">Go to Login →</a>
+  </div>
+
+  <!-- NOT ADMIN -->
+  <div id="not-admin" class="not-admin" style="display:none">
+    <h1>⛔ Access Denied</h1>
+    <p>You don't have admin privileges. Please contact Zac if you need access.</p>
+    <a href="/" class="btn">← Back to Home</a>
+  </div>
+
+  <!-- ADMIN DASHBOARD -->
+  <div id="admin-dashboard" style="display:none">
+    <div id="message-area"></div>
+
+    <h1 style="font-family:'Fredoka One',cursive;font-size:1.8rem;margin-bottom:28px">⚙️ Admin Dashboard</h1>
+
+    <!-- STATS -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="num" id="stat-total">—</div>
+        <div class="label">Total Users</div>
+      </div>
+      <div class="stat-card">
+        <div class="num green" id="stat-subscribers">—</div>
+        <div class="label">Active Subscribers</div>
+      </div>
+      <div class="stat-card">
+        <div class="num coral" id="stat-signups-week">—</div>
+        <div class="label">Signups This Week</div>
+      </div>
+      <div class="stat-card">
+        <div class="num" id="stat-signups-day">—</div>
+        <div class="label">Signups Today</div>
+      </div>
+    </div>
+
+    <!-- SIGNUPS CHART -->
+    <div class="chart-card">
+      <h3>Daily Signups (Last 14 Days)</h3>
+      <div class="chart-bars" id="chart-bars"></div>
+    </div>
+
+    <!-- USERS TABLE -->
+    <div class="table-card">
+      <div class="header">
+        <h3>👥 All Users</h3>
+        <div class="actions">
+          <button class="btn-sm" style="background:#f0f0f0;color:#555" onclick="loadUsers()">🔄 Refresh</button>
+        </div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>Status</th>
+            <th>Role</th>
+            <th>Signed Up</th>
+            <th>Last Login</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="users-table-body">
+          <tr><td colspan="6" style="text-align:center;color:#aaa;padding:32px">Loading...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { isAdmin, getUser, SUPABASE_URL, getSupabase } from '/auth-system/static/auth.js';
+
+// ── Guard ───────────────────────────────────
+async function init() {
+  const admin = await isAdmin();
+  if (!admin) {
+    const user = await getUser();
+    if (!user) {
+      document.getElementById('auth-gate').style.display = 'block';
+    } else {
+      document.getElementById('not-admin').style.display = 'block';
+    }
+    return;
+  }
+  document.getElementById('admin-dashboard').style.display = 'block';
+  await loadUsers();
+  await loadStats();
+}
+
+// ── Load users via Supabase client ──────────
+async function loadUsers() {
+  const tbody = document.getElementById('users-table-body');
+  tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#aaa;padding:32px">Loading...</td></tr>';
+  try {
+    const sb = await getSupabase();
+    const { data, error } = await sb
+      .from('profiles')
+      .select('*')
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    renderUsers(data || []);
+  } catch (err) {
+    tbody.innerHTML = `<tr><td colspan="6" style="color:red;text-align:center;padding:20px">Error loading users: ${err.message}</td></tr>`;
+  }
+}
+
+// ── Load stats ───────────────────────────────
+async function loadStats() {
+  try {
+    const sb = await getSupabase();
+    const { data } = await sb.from('profiles').select('created_at, is_subscriber');
+
+    const total = data.length;
+    const subscribers = data.filter(p => p.is_subscriber).length;
+    const now = new Date();
+    const weekAgo = new Date(now - 7 * 86400000);
+    const dayAgo = new Date(now - 86400000);
+
+    const signupsWeek = data.filter(p => new Date(p.created_at) >= weekAgo).length;
+    const signupsDay = data.filter(p => new Date(p.created_at) >= dayAgo).length;
+
+    document.getElementById('stat-total').textContent = total;
+    document.getElementById('stat-subscribers').textContent = subscribers;
+    document.getElementById('stat-signups-week').textContent = signupsWeek;
+    document.getElementById('stat-signups-day').textContent = signupsDay;
+
+    // Build chart data — last 14 days
+    const days = [];
+    for (let i = 13; i >= 0; i--) {
+      const d = new Date(now - i * 86400000);
+      const key = d.toISOString().split('T')[0];
+      const count = data.filter(p => p.created_at.split('T')[0] === key).length;
+      days.push({ date: key, count });
+    }
+    const max = Math.max(...days.map(d => d.count), 1);
+    const chartEl = document.getElementById('chart-bars');
+    chartEl.innerHTML = days.map(d => `
+      <div class="bar-wrap">
+        <div class="bar" style="height:${Math.round((d.count / max) * 90)}px" title="${d.date}: ${d.count}"></div>
+        <div class="bar-label">${new Date(d.date).getDate()}</div>
+      </div>
+    `).join('');
+  } catch (err) {
+    console.error('Stats error:', err);
+  }
+}
+
+// ── Render users table ───────────────────────
+function renderUsers(users) {
+  const tbody = document.getElementById('users-table-body');
+  if (!users.length) {
+    tbody.innerHTML = '<tr><td colspan="6" style="color:#aaa;text-align:center;padding:32px">No users yet.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = users.map(u => `
+    <tr id="row-${u.id}">
+      <td>
+        <div class="user-email">${escapeHtml(u.email || '—')}</div>
+        <div class="user-meta">ID: ${escapeHtml(u.id)}</div>
+      </td>
+      <td>
+        ${u.is_suspended
+          ? '<span class="badge badge-suspended">⏸ Suspended</span>'
+          : '<span class="badge badge-active">Active</span>'}
+        ${u.is_subscriber ? '<br><span class="badge badge-subscriber" style="margin-top:4px">⭐ Subscriber</span>' : ''}
+      </td>
+      <td>
+        ${u.is_admin ? '<span class="badge badge-admin">Admin</span>' : '<span style="color:#aaa;font-size:.82rem">User</span>'}
+      </td>
+      <td style="font-size:.82rem;color:#666">${formatDate(u.created_at)}</td>
+      <td style="font-size:.82rem;color:#666">${formatDate(u.last_login_at)}</td>
+      <td>
+        ${!u.is_admin ? `
+          ${u.is_suspended
+            ? `<button class="btn-sm btn-activate" onclick="toggleSuspend('${u.id}', false)">Activate</button>`
+            : `<button class="btn-sm btn-suspend" onclick="toggleSuspend('${u.id}', true)">Suspend</button>`
+          }
+          <button class="btn-sm btn-delete" onclick="deleteUser('${u.id}')">Delete</button>
+        ` : '<span style="color:#aaa;font-size:.78rem">Protected</span>'}
+      </td>
+    </tr>
+  `).join('');
+}
+
+// ── Actions ──────────────────────────────────
+window.toggleSuspend = async function(userId, suspend) {
+  if (!confirm(suspend ? 'Suspend this user?' : 'Activate this user?')) return;
+  try {
+    const sb = await getSupabase();
+    const { error } = await sb.from('profiles').update({ is_suspended: suspend }).eq('id', userId);
+    if (error) throw error;
+    showMsg(suspend ? 'User suspended.' : 'User activated.', 'success');
+    await loadUsers();
+  } catch (err) {
+    showMsg('Action failed: ' + err.message, 'error');
+  }
+};
+
+window.deleteUser = async function(userId) {
+  if (!confirm('Permanently delete this user? This cannot be undone.')) return;
+  try {
+    const sb = await getSupabase();
+    // Delete profile first (RLS will also cascade via foreign key if set)
+    const { error } = await sb.from('profiles').delete().eq('id', userId);
+    if (error) throw error;
+    showMsg('User deleted.', 'success');
+    await loadUsers();
+  } catch (err) {
+    showMsg('Delete failed: ' + err.message, 'error');
+  }
+};
+
+function showMsg(msg, type) {
+  const el = document.getElementById('message-area');
+  if (!el) return;
+  el.innerHTML = `<div class="msg-box msg-${type}">${msg}</div>`;
+  setTimeout(() => { el.innerHTML = ''; }, 5000);
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function formatDate(iso) {
+  if (!iso) return '—';
+  return new Date(iso).toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' });
+}
+
+init();
+</script>
+</body>
+</html>
